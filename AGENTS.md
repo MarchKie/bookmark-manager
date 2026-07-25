@@ -18,7 +18,7 @@ This repository contains the **Personal Bookmark Manager** full-stack web applic
 
 ### 🖥️ Backend Service (`/backend`)
 - **Runtime & Framework:** Node.js + TypeScript, NestJS (`@nestjs/core`, `@nestjs/common`).
-- **ORM & Database:** Prisma ORM with PostgreSQL SQL database.
+- **ORM & Database:** Prisma ORM with PostgreSQL database.
 - **Authentication & Security:**
   - OIDC Authentication against Auth0 tenant (`https://dev-yg.us.auth0.com/.well-known/openid-configuration`).
   - Client ID: `H9F6QG5SzTKMv0tbmgxLj9LjG1EKVllA`, Audience: `https://bbl-candidate-test-api`.
