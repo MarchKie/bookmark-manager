@@ -1,0 +1,35 @@
+// Prisma Schema for Personal Bookmark Manager
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Collection {
+  id        String     @id @default(uuid())
+  name      String
+  ownerId   String
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  bookmarks Bookmark[]
+
+  @@index([ownerId])
+}
+
+model Bookmark {
+  id           String      @id @default(uuid())
+  url          String
+  title        String
+  notes        String?
+  collectionId String?
+  ownerId      String
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+  collection   Collection? @relation(fields: [collectionId], references: [id], onDelete: SetNull)
+
+  @@index([ownerId])
+  @@index([collectionId, ownerId])
+}

@@ -29,6 +29,12 @@ This repository contains the **Personal Bookmark Manager** full-stack web applic
   - `/collections` : GET (list/filter), POST (create), GET `:id`, PUT `:id`, PATCH `:id`, DELETE `:id`.
   - `/bookmarks` : GET (list/filter by `collectionId`), POST (create), GET `:id`, PUT `:id`, PATCH `:id`, DELETE `:id`.
   - `/collections/:id/bookmarks` : GET all bookmarks in a specific collection owned by the user.
+  
+> ⚠️ **TBD before implementing the auth guard:** issuer, `jwks_uri`, supported signing
+> algorithm(s), and token endpoint auth method must be confirmed by inspecting the
+> discovery document and JWKS directly — do not assume defaults. This section will be
+> updated with the confirmed values once that investigation is done (see `DECISIONS.md`
+> and `transcripts/`).
 
 ### 🌐 Frontend Website (`/frontend`)
 - **Framework & Build:** React with Vite, TypeScript. (**Strictly NO Next.js**).
