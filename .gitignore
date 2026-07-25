@@ -1,0 +1,28 @@
+# --- Frontend ---
+/frontend/node_modules/
+/frontend/.pnp
+/frontend/.pnp.js
+/frontend/dist/
+/frontend/build/
+/frontend/.env.local
+/frontend/.env.development.local
+/frontend/.env.test.local
+/frontend/.env.production.local
+
+# --- Backend ---
+/backend/node_modules/
+/backend/dist/
+/backend/build/
+/backend/.env
+/backend/.env.local
+/backend/logs/
+/backend/*.log
+
+# --- System Files ---
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# --- Document Context ---
+/docs
