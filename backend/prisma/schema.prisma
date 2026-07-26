@@ -15,6 +15,7 @@ model Collection {
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
   bookmarks Bookmark[]
+  share     CollectionShare?
 
   @@index([ownerId])
 }
@@ -33,3 +34,16 @@ model Bookmark {
   @@index([ownerId])
   @@index([collectionId, ownerId])
 }
+
+model CollectionShare {
+  id           String     @id @default(uuid())
+  collectionId String     @unique
+  shareToken   String     @unique @default(uuid())
+  expiresAt    DateTime?
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  collection   Collection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
+
+  @@index([shareToken])
+}
+

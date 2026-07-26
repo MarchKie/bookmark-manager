@@ -93,9 +93,13 @@
   "id": "cuid-string",
   "collectionId": "cuid-string",
   "shareToken": "cuid-string",
+  "collection": {
+    "id": "cuid-string",
+    "ref": "cuid-string",
+    "onDelete": "cascade"
+  },
   "expiresAt": "2026-07-25T00:00:00.000Z",
-  "createdAt": "2026-07-25T00:00:00.000Z",
-  "updatedAt": "2026-07-25T00:00:00.000Z"
+  "createdAt": "2026-07-25T00:00:00.000Z"
 }
 ```
 
@@ -165,3 +169,10 @@ Standardized error shape emitted by NestJS Exception Filters:
 - **Agent's First Attempt**: When receiving `POST /bookmarks` with a `collectionId`, the agent created the bookmark record without verifying whether the referenced collection belonged to the authenticated user.
 - **Why it was wrong**: User B could supply User A's `collectionId` in the request body, successfully associating User B's bookmark with User A's collection container.
 - **How it was caught & corrected**: Added explicit collection ownership validation in `BookmarksService.create()`, `update()`, and `patch()`. Calling `this.collectionsService.findOne(dto.collectionId, ownerId)` ensures that any target collection MUST exist and belong to `user.sub`, returning `404 Not Found` if it belongs to another user.
+
+### Flaw 3: Identity Leakage in Public Share Payload & Unauthorized Revocation
+- **Agent's First Attempt**: When implementing ADR-05 collection sharing (`GET /collections/share/:token`), the agent returned the raw database collection record including `ownerId: "auth0|..."`. Additionally, `DELETE /collections/share/:token` allowed any authenticated user to delete a share token without checking if the underlying collection belonged to them.
+- **Why it was wrong**:
+  1. Exposing `ownerId` on a public unauthenticated route leaks owner identity details, violating the core Privacy Invariant.
+  2. Allowing User B to revoke User A's share token enables cross-user tampering and unauthorized revocation.
+- **How it was caught & corrected**: Caught during adversarial security test writing in `share-security.e2e-spec.ts`. Refactored `ShareService.getSharedCollection()` to return a sanitized shape excluding `ownerId`, and updated `ShareService.revokeShareToken()` to verify `share.collection.ownerId === ownerId`, returning `404 Not Found` if User B attempts to manipulate User A's share token.

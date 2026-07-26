@@ -6,6 +6,7 @@ import { AuthModule } from './auth/auth.module';
 import { MeModule } from './me/me.module';
 import { CollectionsModule } from './collections/collections.module';
 import { BookmarksModule } from './bookmarks/bookmarks.module';
+import { ShareModule } from './share/share.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { BookmarksModule } from './bookmarks/bookmarks.module';
     MeModule,
     CollectionsModule,
     BookmarksModule,
+    ShareModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -78,9 +78,7 @@ Before creating or updating a bookmark with a `collectionId`, the service verifi
 ### Context
 The requirement states: 
 - *"A user may want to share a collection with someone else."* 
-- *"Everything in this app is private to the person who created it. There is no public content, no shared
-feed, no "browse other users." If user A can see, edit, or even learn of the existence of user B's data, the
-app is broken"* 
+- *"Everything in this app is private to the person who created it. There is no public content, no shared feed, no "browse other users." If user A can see, edit, or even learn of the existence of user B's data, the app is broken"* 
 
 ### Decision
 Implemented a minimal read-only sharing mechanism - the owner can generate a share token for a collection. Anyone with the link can view that collection's bookmarks without logging in. No editing, no account required for the viewer, no visibility
