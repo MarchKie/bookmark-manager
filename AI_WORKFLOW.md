@@ -1,10 +1,15 @@
 # AI Workflow & Reflection Log
 ---
 
+This document details the task decomposition, agent tool usage, successes, AI flaws and recovery processes, effective vs. ineffective prompts, and token efficiency strategies used throughout the develo
+pment of the **Personal Bookmark Manager**
+
+---
+
 ## 1. AI Tools & Models Used
 - **AI Coding Agent**: Antigravity IDE Coding Agent
 - **LLM Model**: Gemini 3.6 Flash (High)
-- **MCP Servers**: Context7 MCP Server (`resolve-library-id`, `query-docs`)
+- **MCP Servers**: Context7 MCP Server (`resolve-library-id`, `query-docs`), Prisma MCP Server (`migrate-status`, `migrate-dev`)
 - **Custom Skill**: `vite-react-best-practices` ([SKILL.md](.agents/skills/vite-react-best-practices/SKILL.md))
 
 ---
@@ -12,10 +17,44 @@
 ## 2. Agent Rules & Guardrails
 - **Rule Enforcement**: Strictly follow [AGENTS.md]
 - **Data Privacy Invariant**: All DB queries strictly scope by authenticated user `ownerId`.
+- **Context7 MCP Server**: Use for Node.js, NestJS, and Vite/React documentation lookup.
 
 ---
 
 ## 3. Task Execution Plan
+
+The project was implemented in 6 structured phases:
+
+1. **Phase 0: Environment Setup & Agent Guardrails**
+   - Configured repository rules ([AGENTS.md](AGENTS.md)) and Context7/Prisma MCP servers.
+   - Set up workspace structure for backend and frontend.
+
+2. **Phase 1: Auth0 Tenant Investigation & Token Strategy**
+   - Inspected Auth0 discovery document (`.well-known/openid-configuration`) and JWKS endpoint.
+   - Formulated **ADR-01**: Selected JWT Access Tokens (`aud: https://bbl-candidate-test-api`) for Bearer API authorization.
+
+3. **Phase 2: Database Infrastructure & Prisma ORM**
+   - Launched PostgreSQL container (`docker-compose.yml`).
+   - Defined schema ([schema.prisma](backend/prisma/schema.prisma)) and initialized `PrismaService` with `@prisma/adapter-pg`.
+
+4. **Phase 3: OIDC Authentication & User Profile**
+   - Built `JwtAuthGuard` & `JwtStrategy` with dynamic JWKS signature verification.
+   - Implemented `@CurrentUser()` decorator and `/me` profile endpoint.
+
+5. **Phase 4: Core Domain Endpoints & Security Isolation**
+   - Implemented `/collections` and `/bookmarks` controllers and services.
+   - Enforced **ADR-02** (set null on collection delete), **ADR-03** (404 Not Found privacy boundary), and **ADR-04** (collection injection guard).
+   - Created adversarial e2e test suite (`cross-user-security.e2e-spec.ts`).
+
+6. **Phase 5: Read-Only Sharing (ADR-05), Backend Verification**
+   - Implemented `CollectionShare` model & `/collections/share` endpoints (ADR-05).
+   - Created multi-user database seed script (`seed.ts`) and verified `share-security.e2e-spec.ts`.
+
+7. **Phase 6: Frontend Implementation & Backend Integration**
+   - Built React + Vite SPA adhering to `vite-react-best-practices` skill with MUI v6, Auth0 PKCE login, and lazy-loaded routes.
+   - Integrated with backend APIs using Axios for authentication, collections, bookmarks, and sharing.
+
+
 
 ---
 

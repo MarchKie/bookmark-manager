@@ -1,5 +1,5 @@
 # Agent Instructions & Project Rules (AGENTS.md)
-
+---
 This repository contains the **Personal Bookmark Manager** full-stack web application. This document defines the mandatory rules, architectural constraints, security invariants, and coding standards for all AI coding agents working on this codebase.
 
 ---
@@ -77,3 +77,25 @@ All agents must maintain and update the following project documentation:
 - `DECISIONS.md` : Architecture Decision Records (ADRs) explaining choices under under-specified requirements.
 - `AI_WORKFLOW.md` : Process writeup detailing task decomposition, agent tool usage, successes, failures, and prompt logs.
 - `README.md` : Setup, installation, environment variables, database migration/seeding, test execution instructions, and implementation status.
+
+---
+
+## 6. Reusable Agent Capabilities (`/.agents/` & Skills)
+
+The repository configures reusable capabilities, MCP tools, and skills to steer AI agents deterministically:
+
+### 1. `vite-react-best-practices` Custom Skill
+- **Path**: [.agents/skills/vite-react-best-practices/SKILL.md](.agents/skills/vite-react-best-practices/SKILL.md)
+- **Definition**: Senior-level guidelines for Vite + React SPAs covering route-level code splitting (`React.lazy`), `VITE_` environment variable scoping, static host rewrites, and Rollup build validation.
+- **When & Why Invoked**: Invoked automatically whenever building, refactoring, or reviewing frontend React components and Vite configurations to prevent SPA routing 404s, unhandled bundle bloat, and missing environment variables.
+
+### 2. Context7 Documentation MCP Integration (`context7`)
+- **Path**: [.agents/mcp_config.json](.agents/mcp_config.json#L5-L10)
+- **Definition**: Model Context Protocol (MCP) server providing version-specific documentation lookups (`resolve-library-id`, `query-docs`) for React, NestJS, Prisma, and Auth0 libraries.
+- **When & Why Invoked**: Invoked before implementing framework features or API integrations to prevent hallucinating obsolete SDK methods or deprecated signatures.
+
+### 3. Prisma Database ORM MCP Integration (`prisma-mcp-server`)
+- **Path**: [.agents/mcp_config.json](.agents/mcp_config.json#L11-L19)
+- **Definition**: MCP tool integration providing automated schema migration status checks (`migrate-status`, `migrate-dev`) and database inspection capabilities.
+- **When & Why Invoked**: Invoked during database schema refactoring (e.g., adding `CollectionShare` for ADR-05) and multi-user data seeding verification.
+

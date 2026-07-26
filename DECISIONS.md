@@ -1,5 +1,10 @@
 # Decisions
 ---
+ADR-style log of every place the spec was silent or ambiguous, what I chose, and why.
+Each entry also notes what the agent's default/first attempt was and how I steered it
+toward the actual decision — not just the decision itself.
+
+---
 ## 1.ADR-01: Token Strategy for Bearer Authentication (access token vs id_token)
 ### Context
 Section §3.1 requires OIDC authentication against Auth0. Candidates must choose which token the API accepts as the Bearer credential and justify the choice.
