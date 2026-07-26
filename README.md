@@ -22,44 +22,27 @@ A private, secure read-later bookmark application built with NestJS (Backend API
 
 ---
 
-## 🚀 Quick Start & Setup Instructions
+## 🚀 Quick Start & Docker Containerization
+
+The entire full-stack application (PostgreSQL, NestJS Backend API, and React Vite Frontend SPA) can be built and launched with a single Docker Compose command.
 
 ### Prerequisites
-- Node.js (>= v20)
-- npm (>= 10)
-- Docker & Docker Compose (for PostgreSQL database)
+- Node.js (>= v20) & npm (for local development)
+- Docker & Docker Compose
 
-### 1. Start Database Container
+### 1. Launch Full Container Stack (PostgreSQL + Backend + Frontend)
 ```bash
 # From workspace root
-docker compose up -d
+docker compose up --build -d
 ```
-This launches a PostgreSQL 16 database running on `localhost:5432` with database `bookmark_db`.
+This single command:
+1. Starts **PostgreSQL 16** container (`bbl-postgres`) on port `5432` with health checks.
+2. Builds the **NestJS Backend API** container (`bbl-backend`) on port `3001`. Automatically runs Prisma schema sync, multi-user database seeding, and starts the server.
+3. Builds the **React + Vite Frontend** container (`bbl-frontend`) using multi-stage Nginx Alpine on port `3000`. Serves production assets with static host rewrites (`try_files $uri $uri/ /index.html;`) and optimal asset caching headers.
 
-### 2. Configure Environment Variables
-Ensure `backend/.env` exists (copied from `.env.example` if needed):
-```env
-PORT=3000
-DATABASE_URL="postgresql://postgres:postgres@localhost:5432/bookmark_db?schema=public"
-AUTH0_ISSUER_URL="https://dev-yg.us.auth0.com/"
-AUTH0_AUDIENCE="https://bbl-candidate-test-api"
-```
-
-### 3. Install Dependencies & Setup Database
+### 2. Verify Running Containers
 ```bash
-cd backend
-
-# Install dependencies
-npm install
-
-# Push database schema
-npx prisma db push
-
-# Generate Prisma Client
-npx prisma generate
-
-# Seed database with multi-user sample data
-npx prisma db seed
+docker compose ps
 ```
 
 ---
