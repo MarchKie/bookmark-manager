@@ -79,6 +79,27 @@
 ```
 
 ---
+### 3.4 Sharing Resource (`/collections/share`)
+
+| Method | Endpoint | Description | Status Code |
+|---|---|---|---|
+| `POST` | `/collections/share` | Generate new share token for collection | `201 Created` / `404` |
+| `GET` | `/collections/share/:token` | Get share token for collection | `200 OK` / `404` |
+| `DELETE` | `/collections/share/:token` | Delete share token for collection | `204 No Content` / `404` |
+
+#### Share Token Schema Shape
+```json
+{
+  "id": "cuid-string",
+  "collectionId": "cuid-string",
+  "shareToken": "cuid-string",
+  "expiresAt": "2026-07-25T00:00:00.000Z",
+  "createdAt": "2026-07-25T00:00:00.000Z",
+  "updatedAt": "2026-07-25T00:00:00.000Z"
+}
+```
+
+---
 
 ## 4. Error Responses Format
 Standardized error shape emitted by NestJS Exception Filters:

@@ -71,3 +71,28 @@ Before creating or updating a bookmark with a `collectionId`, the service verifi
 ### Rationale
 1. **Boundary Enforcement:** Prevents User B from supplying User A's `collectionId` to inject bookmarks into User A's private collections.
 2. **Consistent Privacy Responses:** Maintains the HTTP 404 response rule for invalid/cross-user collection references.
+
+---
+
+## 5. ADR-05: Collection Sharing — Read-Only Share Link (Minimal Scope)
+### Context
+The requirement states: 
+- *"A user may want to share a collection with someone else."* 
+- *"Everything in this app is private to the person who created it. There is no public content, no shared
+feed, no "browse other users." If user A can see, edit, or even learn of the existence of user B's data, the
+app is broken"* 
+
+### Decision
+Implemented a minimal read-only sharing mechanism - the owner can generate a share token for a collection. Anyone with the link can view that collection's bookmarks without logging in. No editing, no account required for the viewer, no visibility
+into anything else the owner has. Regenerating the link invalidates the old one and expired old share token (acts as an implicit revoke).
+
+### Rationale
+1. **Simplicity:** Easy to implement and understand.
+2. **Privacy:** No risk of oversharing private data.
+3. **Security:** Cryptographically random tokens prevent guessing.
+4. **Control:** Owner can revoke access by regenerating the token or by setting expiry time. After expiry time, the collection cannot be accessed by anyone.
+5. **No edit/transferability:** This prevents any accidental or malicious propagation of private content outside the owner's control.
+
+### Trade-offs
+- No fine-grained permission controls (e.g., edit access, read-only vs. edit).
+- No access logging or auditing.
