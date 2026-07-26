@@ -26,3 +26,8 @@ Thumbs.db
 
 # --- Document Context ---
 /docs
+
+# --- Environment Variables ---
+.env
+.env.*
+!.env.example
