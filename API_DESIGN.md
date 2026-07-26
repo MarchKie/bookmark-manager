@@ -133,3 +133,14 @@ Standardized error shape emitted by NestJS Exception Filters:
 ```
 
 ---
+
+## 5.Flaws Caught and Corrected
+### Flaw 1: Cross-User Privacy Leakage (403 vs 404)
+- **Agent's First Attempt**: The initial service logic attempted to query resources by ID alone (`prisma.collection.findUnique({ where: { id } })`) and then evaluate ownership via an explicit conditional (`if (collection.ownerId !== user.sub) throw new ForbiddenException()`).
+- **Why it was wrong**: Returning `403 Forbidden` leaks data existence to malicious actors, allowing User B to probe and infer valid resource IDs belonging to User A, violating the non-negotiable Privacy Invariant in §3.
+- **How it was caught & corrected**: Enforced the rule from `AGENTS.md`. Refactored all queries (`findFirst`, `update`, `delete`) to include `ownerId: user.sub` directly in the database `where` clause. If a resource belongs to another user, Prisma returns `null` and the API throws `NotFoundException` (`404 Not Found`).
+
+### Flaw 2: Cross-User Collection Injection during Bookmark Creation
+- **Agent's First Attempt**: When receiving `POST /bookmarks` with a `collectionId`, the agent created the bookmark record without verifying whether the referenced collection belonged to the authenticated user.
+- **Why it was wrong**: User B could supply User A's `collectionId` in the request body, successfully associating User B's bookmark with User A's collection container.
+- **How it was caught & corrected**: Added explicit collection ownership validation in `BookmarksService.create()`, `update()`, and `patch()`. Calling `this.collectionsService.findOne(dto.collectionId, ownerId)` ensures that any target collection MUST exist and belong to `user.sub`, returning `404 Not Found` if it belongs to another user.

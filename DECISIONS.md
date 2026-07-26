@@ -19,5 +19,55 @@ We choose the **JWT Access Token** (obtained by supplying `audience: https://bbl
    - **Access Tokens** contain the `aud` (audience) claim, which specifies the intended recipient of the token.
    - the backend verifies `aud === https://bbl-candidate-test-api`, rejecting tokens intended for other applications.
 
+4. **Data Privacy (PII Protection):**
+   - ID Tokens contain sensitive user profile claims (email, name, picture). Transmitting ID Tokens on every REST request inflates header size and risks leaking personal identity details into proxy logs.
+
 ### Trade-offs
 - the frontend must pass `audience: https://bbl-candidate-test-api` during the Authorization Code PKCE flow
+
+---
+
+## 2. ADR-02: Collection Deletion Cascade Behavior (Uncategorized Bookmarks)
+
+### Context
+Section §3.3 presents the under-specified requirement: *"Collections hold bookmarks. A user can delete a collection. A user may want to share a collection with someone else."*
+Deleting a collection requires defining cascade behavior for nested bookmarks.
+
+### Decision
+When a user deletes a `Collection`, associated `Bookmark` records are **retained** in the database with their `collectionId` set to `null` (`onDelete: SetNull`). The bookmarks move to an **Uncategorized** state.
+
+### Rationale
+1. **Data Loss Prevention:** Deleting an organizational container (a collection) should not permanently destroy the user's saved web links. Users expect saved bookmarks to remain accessible even if their categorization changes.
+2. **Database Integrity:** Setting `collectionId` to `null` maintains referential integrity without requiring soft-delete columns or complex recovery mechanisms.
+
+### Trade-offs
+- Bookmarks without collections accumulate in an uncategorized list and require UI support for viewing uncategorized items.
+---
+## 3. ADR-03: HTTP 404 Not Found for Cross-User Privacy Isolation (404 vs. 403)
+
+### Context
+The Core Security Invariant (§3) states: *"Everything in this app is private to the person who created it... If User A can see, edit, or learn of the existence of User B's data, the app is broken."*
+
+### Decision
+All database queries (`findMany`, `findFirst`, `update`, `delete`, `count`) MUST include `ownerId: user.sub` in their `where` clause. If a resource exists in the database but belongs to User B, requests by User A return **HTTP 404 Not Found** (never `403 Forbidden`).
+
+### Rationale
+1. **Zero Privacy Leakage:** Returning `403 Forbidden` acknowledges to an attacker or unauthorized user that a specific resource ID exists in the database, leaking metadata and enabling ID enumeration attacks.
+2. **Uniform Privacy Boundary:** Returning `404 Not Found` hides resource existence entirely, making unauthorized resources indistinguishable from non-existent IDs.
+
+### Trade-offs
+- Requires strict query guardrail discipline in every service method to ensure `ownerId` is never omitted.
+
+---
+
+## 4. ADR-04: Cross-User Collection Injection Prevention during Bookmark Mutation
+
+### Context
+When creating or updating a bookmark (`POST /bookmarks`, `PUT /bookmarks/:id`, `PATCH /bookmarks/:id`), clients can pass a `collectionId`.
+
+### Decision
+Before creating or updating a bookmark with a `collectionId`, the service verifies that the target collection exists AND belongs to `user.sub` (`collectionsService.findOne(dto.collectionId, ownerId)`). If the collection belongs to another user or does not exist, the API throws `404 Not Found`.
+
+### Rationale
+1. **Boundary Enforcement:** Prevents User B from supplying User A's `collectionId` to inject bookmarks into User A's private collections.
+2. **Consistent Privacy Responses:** Maintains the HTTP 404 response rule for invalid/cross-user collection references.
